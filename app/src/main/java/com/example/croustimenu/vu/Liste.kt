@@ -20,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.croustimenu.MainViewmodel
 import com.example.croustimenu.models.Crous
+import kotlinx.coroutines.flow.getAndUpdate
 
 @Composable
 fun ListeScreen(viewModel: MainViewmodel) {
@@ -39,13 +40,17 @@ fun ListeScreen(viewModel: MainViewmodel) {
             )
         )
 
-        val crous by viewModel.crous.collectAsState()
+        viewModel.getAllCrousByAPI()
+        val crous by viewModel.crousAPI.collectAsState()
 
+        Text(
+            text = "Liste des crous + ${crous.size}"
+        )
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            items(crous) { state ->
+            items(crous) { crous ->
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -56,7 +61,7 @@ fun ListeScreen(viewModel: MainViewmodel) {
                         modifier = Modifier.padding(16.dp)
                     ) {
                         Text(
-                            text = "Crous :  ${state.nom ?: "N/A"}",
+                            text = " ${crous.nom ?: "N/A"}",
                             style = MaterialTheme.typography.titleMedium
                         )
                     }
