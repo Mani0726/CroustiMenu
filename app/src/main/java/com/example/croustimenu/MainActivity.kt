@@ -19,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.croustimenu.ui.theme.CroustiMenuTheme
 import com.example.croustimenu.vu.CarteScreen
 import com.example.croustimenu.vu.FavorisScreen
@@ -40,6 +41,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Main() {
     CroustiMenuTheme {
+        val crousRepository = viewModel<MainViewmodel>()
         var selectedScreen by remember { mutableStateOf(Screen.CARTE) }
 
         Scaffold(
@@ -160,7 +162,7 @@ fun Main() {
                 ) {
                     when (selectedScreen) {
                         Screen.CARTE -> CarteScreen()
-                        Screen.LISTE -> ListeScreen()
+                        Screen.LISTE -> ListeScreen(crousRepository)
                         Screen.FAVORIS -> FavorisScreen()
                     }
                 }
