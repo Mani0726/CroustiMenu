@@ -163,7 +163,7 @@ fun Main() {
                     when (selectedScreen) {
                         Screen.CARTE -> CarteScreen()
                         Screen.LISTE -> ListeScreen(crousRepository)
-                        Screen.FAVORIS -> FavorisScreen()
+                        Screen.FAVORIS -> FavorisScreen(crousRepository)
                     }
                 }
             }

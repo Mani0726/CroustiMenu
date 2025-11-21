@@ -14,7 +14,8 @@ data class Crous(
     val adresse:String,
     val latitude: Float,
     val longitude: Float,
-    )
+    val estFavori: Boolean = false
+)
 
 @Dao
 interface CrousDAO {

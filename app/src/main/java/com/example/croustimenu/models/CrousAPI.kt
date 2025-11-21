@@ -26,6 +26,7 @@ data class Data(
     val telephone: String? = null,
     val type_restaurant: TypeRestaurant? = null,
     val zone: String? = null,
+    val estFavori: Boolean = false
 )
 
 @Serializable

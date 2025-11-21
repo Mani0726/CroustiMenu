@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Button
@@ -47,7 +48,8 @@ fun ListeScreen(viewModel: MainViewmodel) {
                 nom = "Crous Castres",
                 latitude = 5.000207F,
                 longitude = 2.05422F,
-                adresse = "Castre"
+                adresse = "Castre",
+                estFavori = false
             )
         )
 
@@ -78,11 +80,16 @@ fun ListeScreen(viewModel: MainViewmodel) {
                                 modifier = Modifier.weight(1f)
                             )
 
-                            IconButton(onClick = { /* favoris */ }) {
+                            IconButton(onClick = {
+                                viewModel.toggleFavori(crous.code ?: 0)  // ⬅️ Utilisez "code"
+                            }) {
                                 Icon(
-                                    imageVector = androidx.compose.material.icons.Icons.Filled.FavoriteBorder,
+                                    imageVector = if (crous.estFavori)
+                                        androidx.compose.material.icons.Icons.Filled.Favorite
+                                    else
+                                        androidx.compose.material.icons.Icons.Filled.FavoriteBorder,
                                     contentDescription = "favoris",
-                                    tint = Color.White
+                                    tint = if (crous.estFavori) Color(0xFFFF9800) else Color.White
                                 )
                             }
                         }

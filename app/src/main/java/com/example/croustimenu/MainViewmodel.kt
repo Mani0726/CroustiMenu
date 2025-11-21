@@ -13,6 +13,11 @@ import kotlinx.coroutines.launch
 class MainViewmodel (application: Application): AndroidViewModel(application){
     val CrousRepository = CrousRepository(application)
     val APIRepository = APIRepository()
+    val crousFavorisAPI = MutableStateFlow<List<Data>>(emptyList())
+
+
+    // Liste pour mémoriser les IDs des favoris
+    private val favorisIds = mutableSetOf<Int>()
 
     fun getAll(){
         viewModelScope.launch {
@@ -20,6 +25,9 @@ class MainViewmodel (application: Application): AndroidViewModel(application){
         }
     }
 
+    fun updateFavorisAPI() {
+        crousFavorisAPI.value = crousAPI.value.filter { it.estFavori }
+    }
     fun addCrous(crous: Crous){
         viewModelScope.launch {
             CrousRepository.addCrous(crous)
@@ -36,15 +44,32 @@ class MainViewmodel (application: Application): AndroidViewModel(application){
 
     fun getAllCrousByAPI() {
         viewModelScope.launch {
-            crousAPI.value = APIRepository.getAll().data
+            val data = APIRepository.getAll().data
+            // Restaurer l'état des favoris après le chargement
+            crousAPI.value = data.map { it.copy(estFavori = favorisIds.contains(it.code)) }
         }
     }
 
-    //liste de nos crous
+    fun toggleFavori(crousId: Int) {
+        // Ajouter/retirer de la liste mémorisée
+        if (favorisIds.contains(crousId)) {
+            favorisIds.remove(crousId)
+        } else {
+            favorisIds.add(crousId)
+        }
 
-    val crousFavoris = MutableStateFlow<List<Crous>>(emptyList())
-    val crousAPI = MutableStateFlow<List<Data>>(emptyList())
-
-
+        crousAPI.value = crousAPI.value.map { data ->
+            if (data.code == crousId) {
+                data.copy(estFavori = !data.estFavori)
+            } else {
+                data
+            }
+        }
+        updateFavorisAPI()
 
     }
+
+    //liste de nos crous
+    val crousFavoris = MutableStateFlow<List<Crous>>(emptyList())
+    val crousAPI = MutableStateFlow<List<Data>>(emptyList())
+}
