@@ -6,7 +6,7 @@ import com.example.croustimenu.models.Crous
 import com.example.croustimenu.models.CrousDAO
 
 
-@Database(entities = [Crous::class], version = 1 )
+@Database(entities = [Crous::class], version = 2 )
 abstract class AppDatabase : RoomDatabase(){
     abstract fun crousDAO(): CrousDAO
 }

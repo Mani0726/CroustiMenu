@@ -11,6 +11,7 @@ import androidx.room.Query
 data class Crous(
     @PrimaryKey val id:Int,
     val nom:String,
+    val adresse:String,
     val latitude: Float,
     val longitude: Float,
     )

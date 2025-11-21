@@ -12,9 +12,8 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.logging.SIMPLE
 import io.ktor.client.request.get
 import io.ktor.serialization.kotlinx.json.json
-import kotlin.collections.emptyList
 
-class APIReposotory {
+class APIRepository {
 
     val client = HttpClient(CIO) {
 
