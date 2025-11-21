@@ -76,14 +76,6 @@ fun Main() {
 
                             // Icônes Home + Favoris (ACTIVES)
                             Row {
-                                IconButton(onClick = { selectedScreen = Screen.CARTE }) {
-                                    Icon(
-                                        imageVector = androidx.compose.material.icons.Icons.Filled.Home,
-                                        contentDescription = "Home",
-                                        tint = Color.White
-                                    )
-                                }
-
                                 IconButton(onClick = { selectedScreen = Screen.FAVORIS }) {
                                     Icon(
                                         imageVector = androidx.compose.material.icons.Icons.Filled.FavoriteBorder,
@@ -104,7 +96,17 @@ fun Main() {
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(40.dp)
+
                 ) {
+                    Row(horizontalArrangement = Arrangement.Center) {
+                        IconButton(onClick = { selectedScreen = Screen.CARTE }) {
+                            Icon(
+                                imageVector = androidx.compose.material.icons.Icons.Filled.Home,
+                                contentDescription = "Home",
+                                tint = Color.White
+                            )
+                        }
+                    }
                 }
             }
         ) { innerPadding ->
