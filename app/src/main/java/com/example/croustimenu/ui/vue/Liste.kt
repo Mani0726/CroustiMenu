@@ -27,7 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.croustimenu.MainViewmodel
-import com.example.croustimenu.models.Crous
+import com.example.croustimenu.app.models.Crous
 
 @Composable
 fun ListeScreen(viewModel: MainViewmodel) {

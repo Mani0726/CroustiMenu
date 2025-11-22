@@ -3,10 +3,10 @@ package com.example.croustimenu
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.croustimenu.models.Crous
-import com.example.croustimenu.models.Data
-import com.example.croustimenu.repository.APIRepository
-import com.example.croustimenu.repository.CrousRepository
+import com.example.croustimenu.app.models.Crous
+import com.example.croustimenu.app.models.Data
+import com.example.croustimenu.app.repository.APIRepository
+import com.example.croustimenu.app.repository.CrousRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
