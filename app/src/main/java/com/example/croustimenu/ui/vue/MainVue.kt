@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -26,11 +25,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -62,6 +62,10 @@ fun MainVue() {
         var selectedRestaurant by remember { mutableStateOf<Restaurant?>(null) }
         var currentRegionName by remember { mutableStateOf<String?>(null) }
 
+        val restaurants by viewModel.crousAPI.collectAsState()
+        val menuDuJour by viewModel.menuDuJour.collectAsState()
+        val isMenuLoading by viewModel.isMenuLoading.collectAsState()
+
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -92,7 +96,6 @@ fun MainVue() {
                         }
                     },
                     actions = {
-                        // === NOUVEAU : BOUTON FAVORIS DANS LE TOPBAR ===
                         IconButton(onClick = {
                             selectedScreen = Screen.FAVORIS
                             selectedRestaurant = null
@@ -113,14 +116,13 @@ fun MainVue() {
                     .fillMaxSize()
                     .padding(paddingValues)
             ) {
-                // Bandeau de boutons "navigation"
+                // Onglets Régions / Carte
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    // Bouton Régions
                     Button(
                         onClick = {
                             selectedRestaurant = null
@@ -137,7 +139,6 @@ fun MainVue() {
                         Text("Régions")
                     }
 
-                    // Bouton Carte
                     Button(
                         onClick = {
                             selectedRestaurant = null
@@ -156,7 +157,6 @@ fun MainVue() {
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Contenu principal selon l'écran sélectionné
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -176,8 +176,6 @@ fun MainVue() {
                         }
 
                         Screen.RESTAURANTS -> {
-                            val restaurants by viewModel.crousAPI.collectAsState()
-
                             if (selectedRestaurant == null) {
                                 RestaurantsScreen(
                                     restaurants = restaurants,
@@ -194,8 +192,16 @@ fun MainVue() {
                                     }
                                 )
                             } else {
+                                // Charger le menu du jour pour ce restaurant
+                                LaunchedEffect(selectedRestaurant!!.code) {
+                                    viewModel.clearMenuDuJour()
+                                    viewModel.loadMenuDuJour(selectedRestaurant!!.code)
+                                }
+
                                 RestaurantDetailScreen(
                                     restaurant = selectedRestaurant!!,
+                                    menu = menuDuJour,
+                                    isLoading = isMenuLoading,
                                     onBack = {
                                         selectedRestaurant = null
                                     }

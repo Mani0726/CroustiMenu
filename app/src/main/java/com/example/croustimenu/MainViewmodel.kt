@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.croustimenu.app.models.Crous
+import com.example.croustimenu.app.models.entities.MenuDuJour
 import com.example.croustimenu.app.models.entities.Region
 import com.example.croustimenu.app.models.entities.Restaurant
 import com.example.croustimenu.app.repository.APIRepository
@@ -18,16 +19,12 @@ class MainViewmodel(application: Application) : AndroidViewModel(application) {
     private val crousRepository = CrousRepository(application)
     private val apiRepository = APIRepository()
 
-    /**
-     * IDs des restaurants favoris stockés en base.
-     * Sert à marquer les Restaurant.estFavori dans les listes chargées depuis l’API.
-     */
     private val favorisIds = mutableSetOf<Int>()
 
-    // --- StateFlows exposés au UI ---
+    // --- State API ---
 
-    private val _crousFavoris = MutableStateFlow<List<Crous>>(emptyList())
-    val crousFavoris = _crousFavoris.asStateFlow()
+    private val _regionsAPI = MutableStateFlow<List<Region>>(emptyList())
+    val regionsAPI = _regionsAPI.asStateFlow()
 
     private val _crousAPI = MutableStateFlow<List<Restaurant>>(emptyList())
     val crousAPI = _crousAPI.asStateFlow()
@@ -35,20 +32,27 @@ class MainViewmodel(application: Application) : AndroidViewModel(application) {
     private val _crousFavorisAPI = MutableStateFlow<List<Restaurant>>(emptyList())
     val crousFavorisAPI = _crousFavorisAPI.asStateFlow()
 
-    private val _regionsAPI = MutableStateFlow<List<Region>>(emptyList())
-    val regionsAPI = _regionsAPI.asStateFlow()
+    // Favoris en base (Room)
+    private val _crousFavoris = MutableStateFlow<List<Crous>>(emptyList())
+    val crousFavoris = _crousFavoris.asStateFlow()
+
+    // --- Menu du jour ---
+
+    private val _menuDuJour = MutableStateFlow<MenuDuJour?>(null)
+    val menuDuJour = _menuDuJour.asStateFlow()
+
+    val isMenuLoading = MutableStateFlow(false)
 
     init {
-        // Au démarrage : charge les favoris (Room) + les régions
         viewModelScope.launch {
             try {
-                // Favoris en base
+                // Charge les favoris depuis Room
                 val favoris = crousRepository.getAll()
                 _crousFavoris.value = favoris
                 favorisIds.clear()
                 favorisIds.addAll(favoris.map { it.id })
 
-                // Liste des régions
+                // Charge les régions
                 val regionsResponse = apiRepository.getRegions()
                 _regionsAPI.value = regionsResponse.regions
             } catch (e: Exception) {
@@ -57,26 +61,7 @@ class MainViewmodel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    // --- Utilitaires internes ---
-
-    private fun recalcFavorisOnRestaurants() {
-        _crousAPI.value = _crousAPI.value.map { r ->
-            r.copy(estFavori = favorisIds.contains(r.code))
-        }
-        _crousFavorisAPI.value = _crousAPI.value.filter { it.estFavori }
-    }
-
-    private fun refreshFavorisFromDb() {
-        viewModelScope.launch {
-            val favoris = crousRepository.getAll()
-            _crousFavoris.value = favoris
-            favorisIds.clear()
-            favorisIds.addAll(favoris.map { it.id })
-            recalcFavorisOnRestaurants()
-        }
-    }
-
-    // --- Accès API ---
+    // --- Régions & restaurants ---
 
     fun getAllRegions() {
         viewModelScope.launch {
@@ -84,32 +69,11 @@ class MainViewmodel(application: Application) : AndroidViewModel(application) {
                 val response = apiRepository.getRegions()
                 _regionsAPI.value = response.regions
             } catch (e: Exception) {
-                Log.e("MainViewmodel", "Erreur lors de la récupération des régions", e)
+                Log.e("MainViewmodel", "Erreur getAllRegions", e)
             }
         }
     }
 
-    /**
-     * Charge tous les restaurants (GET /restaurants) et applique les favoris
-     */
-    fun getAllCrousByAPI() {
-        viewModelScope.launch {
-            try {
-                val response = apiRepository.getAll()
-                val dataList = response.restaurants
-                _crousAPI.value = dataList.map { r ->
-                    r.copy(estFavori = favorisIds.contains(r.code))
-                }
-                _crousFavorisAPI.value = _crousAPI.value.filter { it.estFavori }
-            } catch (e: Exception) {
-                Log.e("MainViewmodel", "Erreur lors de la récupération des restaurants", e)
-            }
-        }
-    }
-
-    /**
-     * Charge les restaurants d'une région donnée
-     */
     fun getRestaurantsByRegion(codeRegion: Int) {
         viewModelScope.launch {
             try {
@@ -120,18 +84,44 @@ class MainViewmodel(application: Application) : AndroidViewModel(application) {
                 }
                 _crousFavorisAPI.value = _crousAPI.value.filter { it.estFavori }
             } catch (e: Exception) {
-                Log.e("MainViewmodel", "Erreur lors de la récupération des restaurants", e)
+                Log.e("MainViewmodel", "Erreur getRestaurantsByRegion", e)
             }
         }
     }
 
-    // --- DAO Room exposé (si besoin direct dans l’UI) ---
-
-    fun reloadFavorisFromDb() {
-        refreshFavorisFromDb()
+    fun getAllCrousByAPI() {
+        viewModelScope.launch {
+            try {
+                val response = apiRepository.getAll()
+                val dataList = response.restaurants
+                _crousAPI.value = dataList.map { restaurant ->
+                    restaurant.copy(estFavori = favorisIds.contains(restaurant.code))
+                }
+                _crousFavorisAPI.value = _crousAPI.value.filter { it.estFavori }
+            } catch (e: Exception) {
+                Log.e("MainViewmodel", "Erreur getAllCrousByAPI", e)
+            }
+        }
     }
 
-    // --- Toggle favori avec persistance Room ---
+    // --- Favoris / Room ---
+
+    private fun recalcFavorisOnRestaurants() {
+        _crousAPI.value = _crousAPI.value.map { r ->
+            r.copy(estFavori = favorisIds.contains(r.code))
+        }
+        _crousFavorisAPI.value = _crousAPI.value.filter { it.estFavori }
+    }
+
+    fun reloadFavorisFromDb() {
+        viewModelScope.launch {
+            val favoris = crousRepository.getAll()
+            _crousFavoris.value = favoris
+            favorisIds.clear()
+            favorisIds.addAll(favoris.map { it.id })
+            recalcFavorisOnRestaurants()
+        }
+    }
 
     fun toggleFavori(crousId: Int) {
         viewModelScope.launch {
@@ -141,11 +131,9 @@ class MainViewmodel(application: Application) : AndroidViewModel(application) {
             val wasFavori = favorisIds.contains(crousId)
 
             if (wasFavori) {
-                // Suppression en base
                 favorisIds.remove(crousId)
                 crousRepository.deleteCrous(crousId)
             } else {
-                // Ajout en base
                 favorisIds.add(crousId)
                 if (restaurant != null) {
                     val crous = Crous(
@@ -160,7 +148,6 @@ class MainViewmodel(application: Application) : AndroidViewModel(application) {
                 }
             }
 
-            // Met à jour la liste "en mémoire"
             _crousAPI.value = currentList.map { r ->
                 if (r.code == crousId) {
                     r.copy(estFavori = !wasFavori)
@@ -169,12 +156,32 @@ class MainViewmodel(application: Application) : AndroidViewModel(application) {
                 }
             }
 
-            // Met à jour les listes dérivées
             _crousFavorisAPI.value = _crousAPI.value.filter { it.estFavori }
 
-            // Recharge la liste de favoris depuis la base pour rester cohérent
             val favoris = crousRepository.getAll()
             _crousFavoris.value = favoris
         }
+    }
+
+    // --- Menu du jour ---
+
+    fun loadMenuDuJour(codeRestaurant: Int) {
+        viewModelScope.launch {
+            isMenuLoading.value = true
+            try {
+                val menu = apiRepository.getMenuDuJour(codeRestaurant)
+                _menuDuJour.value = menu
+            } catch (e: Exception) {
+                Log.e("MainViewmodel", "Erreur loadMenuDuJour", e)
+                _menuDuJour.value = null
+            } finally {
+                isMenuLoading.value = false
+            }
+        }
+    }
+
+    fun clearMenuDuJour() {
+        _menuDuJour.value = null
+        isMenuLoading.value = false
     }
 }

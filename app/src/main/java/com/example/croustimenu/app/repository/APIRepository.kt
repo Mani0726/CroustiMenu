@@ -70,6 +70,7 @@ class APIRepository(
 
     private fun todayForApi(): String {
         val sdf = SimpleDateFormat("dd-MM-yyyy", Locale.FRANCE)
-        return sdf.format(Date())
+        return "19-11-2025" // TODO DELETE, THIS IS AN EXAMPLE
+//        return sdf.format(Date())
     }
 }
