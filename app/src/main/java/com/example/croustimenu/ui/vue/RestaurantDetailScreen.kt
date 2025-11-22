@@ -24,8 +24,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,61 +49,76 @@ fun RestaurantDetailScreen(
 ) {
     Scaffold(
         topBar = {
-            TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFF233D4D),
-                    titleContentColor = Color.White
+            // Bandeau arrondi pour le titre du restaurant
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFF233D4D)
                 ),
-                title = {
-                    Column {
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Flèche retour + nom du resto
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.weight(1f)
                         ) {
+                            IconButton(onClick = onBack) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "Retour",
+                                    tint = Color.White
+                                )
+                            }
+
                             Text(
                                 text = restaurant.nom,
                                 color = Color.White,
                                 fontSize = 18.sp,
                                 maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier.weight(1f)
+                                overflow = TextOverflow.Ellipsis
                             )
-
-                            IconButton(onClick = { onToggleFavorite(restaurant) }) {
-                                if (restaurant.estFavori) {
-                                    Icon(
-                                        imageVector = Icons.Filled.Favorite,
-                                        contentDescription = "Retirer des favoris",
-                                        tint = Color(0xFFDC6455)
-                                    )
-                                } else {
-                                    Icon(
-                                        imageVector = Icons.Outlined.FavoriteBorder,
-                                        contentDescription = "Ajouter aux favoris",
-                                        tint = Color(0xFFDC6455)
-                                    )
-                                }
-                            }
                         }
 
-                        Text(
-                            text = menu?.date ?: "Détail et menu du jour",
-                            color = Color.White,
-                            fontSize = 13.sp
-                        )
+                        // Icône favori
+                        IconButton(onClick = { onToggleFavorite(restaurant) }) {
+                            if (restaurant.estFavori) {
+                                Icon(
+                                    imageVector = Icons.Filled.Favorite,
+                                    contentDescription = "Retirer des favoris",
+                                    tint = Color(0xFFDC6455)
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Outlined.FavoriteBorder,
+                                    contentDescription = "Ajouter aux favoris",
+                                    tint = Color(0xFFDC6455)
+                                )
+                            }
+                        }
                     }
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Retour",
-                            tint = Color.White
-                        )
-                    }
+
+                    // Date / sous-titre
+                    Text(
+                        text = menu?.date ?: "Détail et menu du jour",
+                        color = Color.White,
+                        fontSize = 13.sp,
+                        modifier = Modifier.padding(start = 52.dp)
+                    )
                 }
-            )
+            }
         }
     ) { paddingValues ->
         LazyColumn(
