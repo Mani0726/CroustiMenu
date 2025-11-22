@@ -1,6 +1,8 @@
 package com.example.croustimenu.ui.vue
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -66,6 +68,8 @@ fun MainVue() {
         val menuDuJour by viewModel.menuDuJour.collectAsState()
         val isMenuLoading by viewModel.isMenuLoading.collectAsState()
 
+        var previousScreen by remember { mutableStateOf<Screen?>(null) }
+
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -75,7 +79,18 @@ fun MainVue() {
                     ),
                     title = {
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = null
+                                ) {
+                                    selectedScreen = Screen.REGIONS
+                                    selectedRestaurant = null
+                                    currentRegionName = null
+                                    previousScreen = null
+                                    viewModel.clearMenuDuJour()
+                                },
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
@@ -95,6 +110,7 @@ fun MainVue() {
                             }
                         }
                     },
+
                     actions = {
                         IconButton(onClick = {
                             selectedScreen = Screen.FAVORIS
@@ -116,42 +132,44 @@ fun MainVue() {
                     .fillMaxSize()
                     .padding(paddingValues)
             ) {
-                // Onglets Régions / Carte
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    Button(
-                        onClick = {
-                            selectedRestaurant = null
-                            selectedScreen = Screen.REGIONS
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (selectedScreen == Screen.REGIONS ||
-                                selectedScreen == Screen.RESTAURANTS
-                            ) Color(0xFFDC6455) else Color(0xFF233D4D),
-                            contentColor = Color.White
-                        ),
-                        shape = RoundedCornerShape(50)
-                    ) {
-                        Text("Régions")
-                    }
+                // Onglets Régions / Carte : visibles UNIQUEMENT sur Régions ou Carte
+                if (selectedScreen == Screen.REGIONS || selectedScreen == Screen.CARTE) {
 
-                    Button(
-                        onClick = {
-                            selectedRestaurant = null
-                            selectedScreen = Screen.CARTE
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (selectedScreen == Screen.CARTE)
-                                Color(0xFFDC6455) else Color(0xFF233D4D),
-                            contentColor = Color.White
-                        ),
-                        shape = RoundedCornerShape(50)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        Text("Carte")
+                        Button(
+                            onClick = {
+                                selectedRestaurant = null
+                                selectedScreen = Screen.REGIONS
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (selectedScreen == Screen.REGIONS)
+                                    Color(0xFFDC6455) else Color(0xFF233D4D),
+                                contentColor = Color.White
+                            ),
+                            shape = RoundedCornerShape(50)
+                        ) {
+                            Text("Régions")
+                        }
+
+                        Button(
+                            onClick = {
+                                selectedRestaurant = null
+                                selectedScreen = Screen.CARTE
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (selectedScreen == Screen.CARTE)
+                                    Color(0xFFDC6455) else Color(0xFF233D4D),
+                                contentColor = Color.White
+                            ),
+                            shape = RoundedCornerShape(50)
+                        ) {
+                            Text("Carte")
+                        }
                     }
                 }
 
@@ -185,6 +203,7 @@ fun MainVue() {
                                         selectedScreen = Screen.REGIONS
                                     },
                                     onRestaurantClick = { restaurant ->
+                                        previousScreen = selectedScreen
                                         selectedRestaurant = restaurant
                                     },
                                     onToggleFavorite = { restaurant ->
@@ -203,7 +222,26 @@ fun MainVue() {
                                     menu = menuDuJour,
                                     isLoading = isMenuLoading,
                                     onBack = {
+                                        when (previousScreen) {
+                                            Screen.FAVORIS -> {
+                                                selectedScreen = Screen.FAVORIS
+                                            }
+                                            Screen.CARTE -> {
+                                                selectedScreen = Screen.CARTE
+                                            }
+                                            Screen.REGIONS, Screen.RESTAURANTS, null -> {
+                                                selectedScreen = Screen.RESTAURANTS
+                                            }
+                                        }
                                         selectedRestaurant = null
+                                    },
+                                    onToggleFavorite = {
+                                        selectedRestaurant?.let { current ->
+                                            viewModel.toggleFavori(current.code)
+                                            selectedRestaurant = current.copy(
+                                                estFavori = !current.estFavori
+                                            )
+                                        }
                                     }
                                 )
                             }
@@ -212,6 +250,7 @@ fun MainVue() {
                         Screen.CARTE -> {
                             CarteScreen(
                                 onRestaurantSelected = { restaurant ->
+                                    previousScreen = selectedScreen
                                     selectedRestaurant = restaurant
                                     selectedScreen = Screen.RESTAURANTS
                                 }
@@ -222,6 +261,7 @@ fun MainVue() {
                             FavorisScreen(
                                 viewModel = viewModel,
                                 onRestaurantClick = { restaurant ->
+                                    previousScreen = selectedScreen
                                     selectedRestaurant = restaurant
                                     selectedScreen = Screen.RESTAURANTS
                                 }

@@ -3,6 +3,7 @@ package com.example.croustimenu.vu
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,6 +13,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -42,18 +45,46 @@ fun RestaurantDetailScreen(
     restaurant: Restaurant,
     menu: MenuDuJour?,
     isLoading: Boolean,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onToggleFavorite: (Restaurant) -> Unit
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFF233D4D),
+                    titleContentColor = Color.White
+                ),
                 title = {
                     Column {
-                        Text(
-                            text = restaurant.nom,
-                            color = Color.White,
-                            fontSize = 18.sp
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = restaurant.nom,
+                                color = Color.White,
+                                fontSize = 18.sp
+                            )
+
+                            IconButton(onClick = { onToggleFavorite(restaurant) }) {
+                                if (restaurant.estFavori) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Favorite,
+                                        contentDescription = "Retirer des favoris",
+                                        tint = Color(0xFFDC6455)
+                                    )
+                                } else {
+                                    Icon(
+                                        imageVector = Icons.Outlined.FavoriteBorder,
+                                        contentDescription = "Ajouter aux favoris",
+                                        tint = Color(0xFFDC6455)
+                                    )
+                                }
+                            }
+                        }
+
                         Text(
                             text = menu?.date ?: "Détail et menu du jour",
                             color = Color.White,
@@ -69,11 +100,7 @@ fun RestaurantDetailScreen(
                             tint = Color.White
                         )
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFF233D4D),
-                    titleContentColor = Color.White
-                )
+                }
             )
         }
     ) { paddingValues ->
@@ -104,6 +131,7 @@ fun RestaurantDetailScreen(
                         }
                     }
                 }
+
                 menu == null -> {
                     item {
                         Card(
@@ -132,6 +160,7 @@ fun RestaurantDetailScreen(
                         }
                     }
                 }
+
                 else -> {
                     items(menu.liste_repas) { repas ->
                         RepasCard(repas)
