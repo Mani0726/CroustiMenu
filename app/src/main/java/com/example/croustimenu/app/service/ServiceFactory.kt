@@ -3,7 +3,6 @@ package com.example.croustimenu.app.service
 import android.util.Log
 import io.ktor.client.*
 import io.ktor.client.engine.android.*
-import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.serialization.kotlinx.json.*
@@ -33,17 +32,8 @@ object ServiceFactory {
         }
 
         // Configuration de base
-        defaultRequest {
-            url(BASE_URL)
-        }
-
-        // Timeout
-        install(HttpTimeout) {
-            requestTimeoutMillis = 30000
-            connectTimeoutMillis = 30000
-            socketTimeoutMillis = 30000
-        }
+        expectSuccess = true
     }
 
-    val crousService: CrousService = CrousServiceImpl(client)
+    val crousService: CrousService = CrousServiceImpl(client, BASE_URL)
 }
