@@ -214,7 +214,13 @@ fun MainVue() {
                         }
 
                         Screen.FAVORIS -> {
-                            FavorisScreen(viewModel)
+                            FavorisScreen(
+                                viewModel = viewModel,
+                                onRestaurantClick = { restaurant ->
+                                    selectedRestaurant = restaurant
+                                    selectedScreen = Screen.RESTAURANTS
+                                }
+                            )
                         }
                     }
                 }

@@ -3,20 +3,20 @@ package com.example.croustimenu.app.repository
 import android.content.Context
 import androidx.room.Room
 import com.example.croustimenu.app.database.AppDatabase
-import com.example.croustimenu.app.models.Crous
+import com.example.croustimenu.app.models.entities.Crous
 import kotlin.jvm.java
 
-class CrousRepository (context: Context) {
-    val database = Room.databaseBuilder(context, AppDatabase::class.java, "databe-name")
-        .fallbackToDestructiveMigration()
-        .build()
+class CrousRepository(context: Context) {
 
-    val dao = database.crousDAO()
+    private val crousDao = AppDatabase.getInstance(context).crousDAO()
 
+    suspend fun getAll(): List<Crous> = crousDao.getAll()
 
-    suspend fun getAll() = dao.getAll()
+    suspend fun addCrous(crous: Crous) {
+        crousDao.insert(crous)
+    }
 
-    suspend fun addCrous(crous: Crous) = dao.addCrous(crous)
-
-    suspend fun deleteCrous(id:Int)= dao.deleteCrous(id)
+    suspend fun deleteCrous(id: Int) {
+        crousDao.deleteById(id)
+    }
 }

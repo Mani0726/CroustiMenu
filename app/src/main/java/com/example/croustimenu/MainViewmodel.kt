@@ -4,7 +4,7 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.croustimenu.app.models.Crous
+import com.example.croustimenu.app.models.entities.Crous
 import com.example.croustimenu.app.models.entities.MenuDuJour
 import com.example.croustimenu.app.models.entities.Region
 import com.example.croustimenu.app.models.entities.Restaurant
@@ -139,10 +139,7 @@ class MainViewmodel(application: Application) : AndroidViewModel(application) {
                     val crous = Crous(
                         id = restaurant.code,
                         nom = restaurant.nom,
-                        adresse = restaurant.adresse ?: "",
-                        latitude = restaurant.latitude,
-                        longitude = restaurant.longitude,
-                        estFavori = true
+                        adresse = restaurant.adresse ?: ""
                     )
                     crousRepository.addCrous(crous)
                 }

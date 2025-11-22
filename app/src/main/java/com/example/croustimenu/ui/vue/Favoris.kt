@@ -33,12 +33,13 @@ import com.example.croustimenu.MainViewmodel
 import com.example.croustimenu.app.models.entities.Restaurant
 
 @Composable
-fun FavorisScreen(viewModel: MainViewmodel) {
-    // Liste des restaurants (tous) avec flag estFavori
+fun FavorisScreen(
+    viewModel: MainViewmodel,
+    onRestaurantClick: (Restaurant) -> Unit
+) {
     val restaurants by viewModel.crousAPI.collectAsState()
     val favoris by viewModel.crousFavorisAPI.collectAsState()
 
-    // Au premier affichage, on charge tous les restaurants + applique les favoris depuis Room
     LaunchedEffect(Unit) {
         viewModel.getAllCrousByAPI()
         viewModel.reloadFavorisFromDb()
@@ -64,7 +65,8 @@ fun FavorisScreen(viewModel: MainViewmodel) {
                         restaurant = restaurant,
                         onToggleFavorite = {
                             viewModel.toggleFavori(restaurant.code)
-                        }
+                        },
+                        onRestaurantClick = { onRestaurantClick(restaurant) }
                     )
                 }
             }
@@ -75,7 +77,8 @@ fun FavorisScreen(viewModel: MainViewmodel) {
 @Composable
 private fun FavoriCard(
     restaurant: Restaurant,
-    onToggleFavorite: () -> Unit
+    onToggleFavorite: () -> Unit,
+    onRestaurantClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -84,9 +87,7 @@ private fun FavoriCard(
         colors = CardDefaults.cardColors(
             containerColor = Color(0xFFF8F8F8)
         ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 2.dp
-        ),
+        elevation = CardDefaults.cardElevation(2.dp),
         shape = RoundedCornerShape(12.dp)
     ) {
         Column(
@@ -129,7 +130,7 @@ private fun FavoriCard(
             }
 
             Button(
-                onClick = { /* TODO: écran menu du jour */ },
+                onClick = onRestaurantClick,
                 modifier = Modifier
                     .padding(top = 12.dp),
                 colors = ButtonDefaults.buttonColors(
