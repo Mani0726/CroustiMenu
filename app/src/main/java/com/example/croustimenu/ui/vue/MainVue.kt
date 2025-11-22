@@ -210,7 +210,12 @@ fun MainVue() {
                         }
 
                         Screen.CARTE -> {
-                            CarteScreen()
+                            CarteScreen(
+                                onRestaurantSelected = { restaurant ->
+                                    selectedRestaurant = restaurant
+                                    selectedScreen = Screen.RESTAURANTS
+                                }
+                            )
                         }
 
                         Screen.FAVORIS -> {
