@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -19,6 +21,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -27,91 +30,115 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.croustimenu.MainViewmodel
+import com.example.croustimenu.app.models.entities.Restaurant
 
 @Composable
 fun FavorisScreen(viewModel: MainViewmodel) {
-    val crousFavoris by viewModel.crousFavorisAPI.collectAsState()
+    // Liste des restaurants (tous) avec flag estFavori
+    val restaurants by viewModel.crousAPI.collectAsState()
+    val favoris by viewModel.crousFavorisAPI.collectAsState()
+
+    // Au premier affichage, on charge tous les restaurants + applique les favoris depuis Room
+    LaunchedEffect(Unit) {
+        viewModel.getAllCrousByAPI()
+        viewModel.reloadFavorisFromDb()
+    }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(16.dp),
+        contentAlignment = Alignment.TopCenter
     ) {
-        if (crousFavoris.isEmpty()) {
-            // Message si aucun favori
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "Aucun favori pour le moment",
-                    fontSize = 18.sp,
-                    color = Color.Gray
-                )
-            }
+        if (favoris.isEmpty()) {
+            Text(
+                text = "Vous n'avez pas encore de restaurant en favori.",
+                style = MaterialTheme.typography.bodyMedium
+            )
         } else {
-            // Liste des favoris
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
-                items(crousFavoris) { crous ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp),
-                        elevation = CardDefaults.cardElevation(4.dp)
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-
-                            // --- Ligne 1 : Nom + cœur ---
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = crous.nom ?: "N/A",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    modifier = Modifier.weight(1f)
-                                )
-
-                                IconButton(onClick = {
-                                    viewModel.toggleFavori(crous.code ?: 0)
-                                }) {
-                                    Icon(
-                                        imageVector = androidx.compose.material.icons.Icons.Filled.Favorite,
-                                        contentDescription = "Retirer des favoris",
-                                        tint = Color(0xFFFF9800)
-                                    )
-                                }
-                            }
-
-                            // Adresse
-                            Text(
-                                text = crous.adresse ?: "N/A",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = Color(0xFFFF9800),
-                                modifier = Modifier.padding(vertical = 4.dp)
-                            )
-
-                            // --- Bouton Voir le menu ---
-                            Button(
-                                onClick = {},
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(0xFFDC6455)
-                                ),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(top = 12.dp),
-                                shape = RoundedCornerShape(10.dp)
-                            ) {
-                                Text(
-                                    text = "Voir le menu",
-                                    color = Color.White
-                                )
-                            }
+                items(favoris) { restaurant ->
+                    FavoriCard(
+                        restaurant = restaurant,
+                        onToggleFavorite = {
+                            viewModel.toggleFavori(restaurant.code)
                         }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FavoriCard(
+    restaurant: Restaurant,
+    onToggleFavorite: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFFF8F8F8)
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 2.dp
+        ),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = restaurant.nom,
+                    fontSize = 18.sp,
+                    color = Color(0xFF233D4D),
+                    modifier = Modifier.weight(1f)
+                )
+
+                IconButton(onClick = onToggleFavorite) {
+                    if (restaurant.estFavori) {
+                        Icon(
+                            imageVector = Icons.Filled.Favorite,
+                            contentDescription = "Retirer des favoris",
+                            tint = Color(0xFFDC6455)
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Outlined.FavoriteBorder,
+                            contentDescription = "Ajouter aux favoris",
+                            tint = Color(0xFFDC6455)
+                        )
                     }
                 }
+            }
+
+            restaurant.adresse?.let {
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
+
+            Button(
+                onClick = { /* TODO: écran menu du jour */ },
+                modifier = Modifier
+                    .padding(top = 12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF233D4D),
+                    contentColor = Color.White
+                ),
+                shape = RoundedCornerShape(10.dp)
+            ) {
+                Text(text = "Voir le menu")
             }
         }
     }

@@ -35,6 +35,6 @@ data class RestaurantDto(
     // JSON: "acces": [ ... ]
     val acces: List<String>?,
 
-    val ouvert: Boolean,
-    val actif: Boolean?
+    val ouvert: Boolean = false,
+    val actif: Boolean? = null
 )

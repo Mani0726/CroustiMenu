@@ -6,7 +6,12 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.example.croustimenu.ui.vue.MainVue
 
-enum class Screen { CARTE, FAVORIS, REGIONS }
+enum class Screen {
+    REGIONS,
+    RESTAURANTS,
+    CARTE,
+    FAVORIS
+}
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -17,5 +22,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-

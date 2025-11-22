@@ -13,9 +13,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,17 +43,24 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.croustimenu.MainViewmodel
 import com.example.croustimenu.R
 import com.example.croustimenu.Screen
+import com.example.croustimenu.app.models.entities.Region
+import com.example.croustimenu.app.models.entities.Restaurant
 import com.example.croustimenu.ui.theme.CroustiMenuTheme
 import com.example.croustimenu.vu.CarteScreen
 import com.example.croustimenu.vu.FavorisScreen
 import com.example.croustimenu.vu.ListeRegionsScreen
+import com.example.croustimenu.vu.RestaurantDetailScreen
+import com.example.croustimenu.vu.RestaurantsScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainVue() {
     CroustiMenuTheme {
-        val crousRepository = viewModel<MainViewmodel>()
+        val viewModel: MainViewmodel = viewModel()
+
         var selectedScreen by remember { mutableStateOf(Screen.REGIONS) }
+        var selectedRestaurant by remember { mutableStateOf<Restaurant?>(null) }
+        var currentRegionName by remember { mutableStateOf<String?>(null) }
 
         Scaffold(
             topBar = {
@@ -67,8 +75,6 @@ fun MainVue() {
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-
-                            // Logo + Titre
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Image(
                                     painter = painterResource(id = R.drawable.logo_resto),
@@ -83,110 +89,131 @@ fun MainVue() {
                                     color = Color(0xFFDC6455)
                                 )
                             }
-
-                            // Icônes Favoris
-                            Row {
-                                IconButton(onClick = { selectedScreen = Screen.FAVORIS }) {
-                                    Icon(
-                                        imageVector = androidx.compose.material.icons.Icons.Filled.FavoriteBorder,
-                                        contentDescription = "Favoris",
-                                        tint = Color.White
-                                    )
-                                }
-                            }
                         }
                     },
-                    navigationIcon = {}
-                )
-            },
-
-            bottomBar = {
-                BottomAppBar(
-                    containerColor = Color(0xFF233D4D),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(40.dp)
-
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        IconButton(onClick = { selectedScreen = Screen.REGIONS }) {
+                    actions = {
+                        // === NOUVEAU : BOUTON FAVORIS DANS LE TOPBAR ===
+                        IconButton(onClick = {
+                            selectedScreen = Screen.FAVORIS
+                            selectedRestaurant = null
+                        }) {
                             Icon(
-                                imageVector = androidx.compose.material.icons.Icons.Filled.Home,
-                                contentDescription = "Home",
-                                tint = Color.White
+                                imageVector = Icons.Filled.FavoriteBorder,
+                                contentDescription = "Favoris",
+                                tint = Color.White,
+                                modifier = Modifier.size(26.dp)
                             )
                         }
                     }
-                }
+                )
             }
-        ) { innerPadding ->
-
+        ) { paddingValues ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(16.dp)
+                    .padding(paddingValues)
             ) {
-
-                // ---------------- BOUTONS REGIONS / CARTE ----------------
-                // Afficher les boutons uniquement quand on a sélectionné une région (= on est sur LISTE ou CARTE)
-                if (selectedScreen == Screen.REGIONS || selectedScreen == Screen.CARTE) {
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Button(
-                            onClick = { selectedScreen = Screen.REGIONS },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor =
-                                    if (selectedScreen == Screen.REGIONS) Color(0xFFDC6455)
-                                    else Color(0xFF365d76)
-                            ),
-                            shape = RoundedCornerShape(8.dp)
-                        ) {
-                            Text("Liste", color = Color.White)
-                        }
-
-                        Spacer(modifier = Modifier.width(8.dp))
-
-                        Button(
-                            onClick = { selectedScreen = Screen.CARTE },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor =
-                                    if (selectedScreen == Screen.CARTE) Color(0xFFDC6455)
-                                    else Color(0xFF365d76)
-                            ),
-                            shape = RoundedCornerShape(8.dp)
-                        ) {
-                            Text("Carte", color = Color.White)
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-
-                // ---------------- CONTENU ----------------
-                Box(
+                // Bandeau de boutons "navigation"
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(1f)
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    // Bouton Régions
+                    Button(
+                        onClick = {
+                            selectedRestaurant = null
+                            selectedScreen = Screen.REGIONS
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (selectedScreen == Screen.REGIONS ||
+                                selectedScreen == Screen.RESTAURANTS
+                            ) Color(0xFFDC6455) else Color(0xFF233D4D),
+                            contentColor = Color.White
+                        ),
+                        shape = RoundedCornerShape(50)
+                    ) {
+                        Text("Régions")
+                    }
+
+                    // Bouton Carte
+                    Button(
+                        onClick = {
+                            selectedRestaurant = null
+                            selectedScreen = Screen.CARTE
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (selectedScreen == Screen.CARTE)
+                                Color(0xFFDC6455) else Color(0xFF233D4D),
+                            contentColor = Color.White
+                        ),
+                        shape = RoundedCornerShape(50)
+                    ) {
+                        Text("Carte")
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Contenu principal selon l'écran sélectionné
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp)
                 ) {
                     when (selectedScreen) {
-                        Screen.REGIONS -> ListeRegionsScreen(
-                            viewModel = crousRepository,
-                            onRegionClick = { codeRegion ->
-                                // Charger les restaurants de cette région
-                                crousRepository.getRestaurantsByRegion(codeRegion)
-                                // Aller à l'écran liste
-                                selectedScreen = Screen.REGIONS  // ⬅️ CORRIGÉ ICI
+                        Screen.REGIONS -> {
+                            ListeRegionsScreen(
+                                viewModel = viewModel,
+                                onRegionClick = { region: Region ->
+                                    currentRegionName = region.libelle
+                                    selectedRestaurant = null
+                                    viewModel.getRestaurantsByRegion(region.code)
+                                    selectedScreen = Screen.RESTAURANTS
+                                }
+                            )
+                        }
+
+                        Screen.RESTAURANTS -> {
+                            val restaurants by viewModel.crousAPI.collectAsState()
+
+                            if (selectedRestaurant == null) {
+                                RestaurantsScreen(
+                                    restaurants = restaurants,
+                                    regionName = currentRegionName,
+                                    onBack = {
+                                        selectedRestaurant = null
+                                        selectedScreen = Screen.REGIONS
+                                    },
+                                    onRestaurantClick = { restaurant ->
+                                        selectedRestaurant = restaurant
+                                    },
+                                    onToggleFavorite = { restaurant ->
+                                        viewModel.toggleFavori(restaurant.code)
+                                    },
+                                    onVoirMenuClick = { restaurant ->
+                                        // TODO: navigation vers l'écran "menu du jour" du restaurant
+                                        // par exemple : selectedRestaurant = restaurant; selectedScreen = Screen.MENU_DU_JOUR
+                                    }
+                                )
+                            } else {
+                                RestaurantDetailScreen(
+                                    restaurant = selectedRestaurant!!,
+                                    onBack = {
+                                        selectedRestaurant = null
+                                    }
+                                )
                             }
-                        )
-                        Screen.CARTE -> CarteScreen()
-                        Screen.FAVORIS -> FavorisScreen(crousRepository)
+                        }
+
+                        Screen.CARTE -> {
+                            CarteScreen()
+                        }
+
+                        Screen.FAVORIS -> {
+                            FavorisScreen(viewModel)
+                        }
                     }
                 }
             }

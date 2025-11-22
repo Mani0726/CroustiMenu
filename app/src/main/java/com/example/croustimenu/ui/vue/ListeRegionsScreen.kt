@@ -24,62 +24,65 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.croustimenu.MainViewmodel
+import com.example.croustimenu.app.models.entities.Region
 
 @Composable
-fun ListeRegionsScreen(viewModel: MainViewmodel, onRegionClick: (Int) -> Unit) {
-    // Appel API au lancement du composable
-    LaunchedEffect(Unit) {
-        viewModel.getAllRegions()
-    }
-
+fun ListeRegionsScreen(
+    viewModel: MainViewmodel,
+    onRegionClick: (Region) -> Unit
+) {
     val regions by viewModel.regionsAPI.collectAsState()
 
+    LaunchedEffect(Unit) {
+        if (regions.isEmpty()) {
+            viewModel.getAllRegions()
+        }
+    }
+
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
+        modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        when {
-            regions.isEmpty() -> {
-                // Affichage du loader pendant le chargement
-                CircularProgressIndicator(color = Color(0xFFDC6455))
-            }
-            else -> {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    items(regions) { region ->
-                        Card(
+        if (regions.isEmpty()) {
+            CircularProgressIndicator()
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+            ) {
+                items(regions) { region ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                            .clickable { onRegionClick(region) },
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color(0xFF233D4D)
+                        )
+                    ) {
+                        Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(8.dp)
-                                .clickable { onRegionClick(region.code) },
-                            elevation = CardDefaults.cardElevation(4.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = Color(0xFF365d76)
-                            )
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Row(
+                            Text(
+                                text = region.libelle,
+                                style = MaterialTheme.typography.titleMedium,
+                                color = Color.White,
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = region.libelle,
-                                    style = MaterialTheme.typography.titleLarge,
-                                    color = Color.White,
-                                    modifier = Modifier.weight(1f)
-                                )
+                                    .weight(1f)
+                            )
 
-                                // Optionnel : Icône pour indiquer que c'est cliquable
-                                Icon(
-                                    imageVector = androidx.compose.material.icons.Icons.AutoMirrored.Filled.ArrowForward,
-                                    contentDescription = "Voir les restaurants",
-                                    tint = Color.White
-                                )
-                            }
+                            Icon(
+                                imageVector = androidx.compose.material.icons.Icons
+                                    .AutoMirrored
+                                    .Filled
+                                    .ArrowForward,
+                                contentDescription = "Voir les restaurants",
+                                tint = Color.White
+                            )
                         }
                     }
                 }
