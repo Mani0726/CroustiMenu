@@ -42,8 +42,7 @@ fun RestaurantsScreen(
     regionName: String?,
     onBack: () -> Unit,
     onRestaurantClick: (Restaurant) -> Unit,
-    onToggleFavorite: (Restaurant) -> Unit,
-    onVoirMenuClick: (Restaurant) -> Unit
+    onToggleFavorite: (Restaurant) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -88,8 +87,7 @@ fun RestaurantsScreen(
                         RestaurantRow(
                             restaurant = restaurant,
                             onClick = { onRestaurantClick(restaurant) },
-                            onToggleFavorite = { onToggleFavorite(restaurant) },
-                            onVoirMenuClick = { onVoirMenuClick(restaurant) }
+                            onToggleFavorite = { onToggleFavorite(restaurant) }
                         )
                     }
                 }
@@ -102,14 +100,12 @@ fun RestaurantsScreen(
 private fun RestaurantRow(
     restaurant: Restaurant,
     onClick: () -> Unit,
-    onToggleFavorite: () -> Unit,
-    onVoirMenuClick: () -> Unit
+    onToggleFavorite: () -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
-            .clickable { onClick() },
+            .padding(vertical = 8.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color(0xFFF8F8F8) // fond gris clair, comme Favoris
         ),
@@ -156,7 +152,7 @@ private fun RestaurantRow(
             }
 
             Button(
-                onClick = onVoirMenuClick,
+                onClick = onClick,
                 modifier = Modifier
                     .padding(top = 12.dp),
                 colors = ButtonDefaults.buttonColors(

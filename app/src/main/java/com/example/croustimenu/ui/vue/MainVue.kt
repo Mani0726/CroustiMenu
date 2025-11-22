@@ -191,10 +191,6 @@ fun MainVue() {
                                     },
                                     onToggleFavorite = { restaurant ->
                                         viewModel.toggleFavori(restaurant.code)
-                                    },
-                                    onVoirMenuClick = { restaurant ->
-                                        // TODO: navigation vers l'écran "menu du jour" du restaurant
-                                        // par exemple : selectedRestaurant = restaurant; selectedScreen = Screen.MENU_DU_JOUR
                                     }
                                 )
                             } else {
