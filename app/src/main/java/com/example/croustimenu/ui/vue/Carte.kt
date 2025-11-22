@@ -43,11 +43,11 @@ fun CarteScreen(
     onRestaurantSelected: (Restaurant) -> Unit = {}
 ) {
     val context = LocalContext.current
-    val restaurants by viewModel.crousAPI.collectAsState()
+    val restaurants by viewModel.allRestaurants.collectAsState()
 
     LaunchedEffect(Unit) {
         if (restaurants.isEmpty()) {
-            viewModel.getAllCrousByAPI()
+            viewModel.loadAllRestaurants()
         }
     }
 

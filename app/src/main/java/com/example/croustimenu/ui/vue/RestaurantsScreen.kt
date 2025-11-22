@@ -24,14 +24,22 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.croustimenu.app.models.entities.Restaurant
 
@@ -44,6 +52,9 @@ fun RestaurantsScreen(
     onRestaurantClick: (Restaurant) -> Unit,
     onToggleFavorite: (Restaurant) -> Unit
 ) {
+    // État local pour la recherche
+    var searchQuery by remember { mutableStateOf("") }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -78,17 +89,54 @@ fun RestaurantsScreen(
             if (restaurants.isEmpty()) {
                 CircularProgressIndicator()
             } else {
-                LazyColumn(
+                // Filtrage des restaurants selon la recherche
+                val filteredRestaurants =
+                    if (searchQuery.isBlank()) restaurants
+                    else restaurants.filter {
+                        it.nom.contains(searchQuery, ignoreCase = true)
+                    }
+
+                Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(16.dp)
                 ) {
-                    items(restaurants) { restaurant ->
-                        RestaurantRow(
-                            restaurant = restaurant,
-                            onClick = { onRestaurantClick(restaurant) },
-                            onToggleFavorite = { onToggleFavorite(restaurant) }
-                        )
+                    // Barre de recherche
+                    OutlinedTextField(
+                        value = searchQuery,
+                        onValueChange = { searchQuery = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        label = { Text("Rechercher un restaurant") },
+                    )
+
+                    // Liste filtrée
+                    if (filteredRestaurants.isEmpty()) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(top = 16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "Aucun restaurant trouvé",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(top = 16.dp)
+                        ) {
+                            items(filteredRestaurants) { restaurant ->
+                                RestaurantRow(
+                                    restaurant = restaurant,
+                                    onClick = { onRestaurantClick(restaurant) },
+                                    onToggleFavorite = { onToggleFavorite(restaurant) }
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -107,7 +155,7 @@ private fun RestaurantRow(
             .fillMaxWidth()
             .padding(vertical = 8.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFF8F8F8) // fond gris clair, comme Favoris
+            containerColor = Color(0xFFF8F8F8)
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         shape = RoundedCornerShape(12.dp)
@@ -123,7 +171,10 @@ private fun RestaurantRow(
                 Text(
                     text = restaurant.nom,
                     style = MaterialTheme.typography.titleMedium,
-                    color = Color(0xFF233D4D) // bleu foncé du projet
+                    color = Color(0xFF233D4D),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
                 )
 
                 IconButton(onClick = onToggleFavorite) {
@@ -131,7 +182,7 @@ private fun RestaurantRow(
                         Icon(
                             imageVector = Icons.Filled.Favorite,
                             contentDescription = "Retirer des favoris",
-                            tint = Color(0xFFDC6455) // accent rouge/orange
+                            tint = Color(0xFFDC6455)
                         )
                     } else {
                         Icon(
@@ -153,10 +204,9 @@ private fun RestaurantRow(
 
             Button(
                 onClick = onClick,
-                modifier = Modifier
-                    .padding(top = 12.dp),
+                modifier = Modifier.padding(top = 12.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF233D4D),  // bleu foncé
+                    containerColor = Color(0xFF233D4D),
                     contentColor = Color.White
                 ),
                 shape = RoundedCornerShape(10.dp)

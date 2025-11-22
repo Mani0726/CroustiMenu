@@ -46,7 +46,12 @@ class MainViewmodel(application: Application) : AndroidViewModel(application) {
 
     val isMenuLoading = MutableStateFlow(false)
 
+    private val _allRestaurants = MutableStateFlow<List<Restaurant>>(emptyList())
+    val allRestaurants = _allRestaurants.asStateFlow()
+
+
     init {
+        loadAllRestaurants()
         viewModelScope.launch {
             try {
                 isFavorisLoading.value = true
@@ -205,4 +210,16 @@ class MainViewmodel(application: Application) : AndroidViewModel(application) {
         _menuDuJour.value = null
         isMenuLoading.value = false
     }
+
+    fun loadAllRestaurants() {
+        viewModelScope.launch {
+            try {
+                val liste = apiRepository.getAllRestaurants()
+                _allRestaurants.value = liste?.restaurants ?: emptyList()
+            } catch (e: Exception) {
+                Log.e("MainViewmodel", "Erreur loadAllRestaurants", e)
+            }
+        }
+    }
+
 }

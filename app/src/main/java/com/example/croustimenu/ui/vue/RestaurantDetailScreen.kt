@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.croustimenu.app.models.entities.CategoriePlat
@@ -65,7 +66,10 @@ fun RestaurantDetailScreen(
                             Text(
                                 text = restaurant.nom,
                                 color = Color.White,
-                                fontSize = 18.sp
+                                fontSize = 18.sp,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f)
                             )
 
                             IconButton(onClick = { onToggleFavorite(restaurant) }) {

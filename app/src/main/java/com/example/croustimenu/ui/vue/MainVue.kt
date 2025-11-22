@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -117,11 +118,15 @@ fun MainVue() {
                             selectedRestaurant = null
                         }) {
                             Icon(
-                                imageVector = Icons.Filled.FavoriteBorder,
+                                imageVector = if (selectedScreen == Screen.FAVORIS)
+                                    Icons.Filled.Favorite       // icône pleine si sur favoris
+                                else
+                                    Icons.Filled.FavoriteBorder, // icône vide sinon
                                 contentDescription = "Favoris",
-                                tint = Color.White,
+                                tint = Color(0xFFDC6455),
                                 modifier = Modifier.size(26.dp)
                             )
+
                         }
                     }
                 )

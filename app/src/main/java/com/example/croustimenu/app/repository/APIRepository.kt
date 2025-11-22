@@ -73,4 +73,15 @@ class APIRepository(
         return "19-11-2025" // TODO DELETE, THIS IS AN EXAMPLE
 //        return sdf.format(Date())
     }
+
+    suspend fun getAllRestaurants(): ListeRestaurants? {
+        return try {
+            val dto = api.getAllRestaurants()
+            with(mapper) { dto.toDomain() }
+        } catch (e: Exception) {
+            Log.e("APIRepository", "Erreur getAllRestaurants", e)
+            null
+        }
+    }
+
 }
