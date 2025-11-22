@@ -1,6 +1,8 @@
 package com.example.croustimenu.app.models.dto
 
 import com.squareup.moshi.Json
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 
 /**
@@ -15,18 +17,20 @@ import com.squareup.moshi.Json
  *   }
  * }
  */
+@Serializable
 data class MenuByDateResponseDto(
     val success: Boolean,
-    @Json(name = "data")
+    @SerialName( "data")
     val menu: MenuDto?
 )
 
 /**
  * "Menu" dans le schéma de l’API
  */
+@Serializable
 data class MenuDto(
     val code: Int,
     val date: String,
-    @Json(name = "repas")
+    @SerialName( "repas")
     val repasDto: List<RepasDto>
 )

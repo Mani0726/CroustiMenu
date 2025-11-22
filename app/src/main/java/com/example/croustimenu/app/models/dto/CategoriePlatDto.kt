@@ -1,11 +1,13 @@
 package com.example.croustimenu.app.models.dto
 
-import com.squareup.moshi.Json
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class CategoriePlatDto(
     val code: Int,
     val libelle: String,
     val ordre: Int,
-    @Json(name = "plats")
+    @SerialName("plats")
     val liste_plats_dto: List<PlatDto>
 )
