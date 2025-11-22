@@ -25,7 +25,7 @@ import com.example.croustimenu.vu.CarteScreen
 import com.example.croustimenu.vu.FavorisScreen
 import com.example.croustimenu.vu.ListeScreen
 
-enum class Screen { CARTE, LISTE, FAVORIS }
+enum class Screen { LISTE,CARTE, FAVORIS }
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,7 +42,7 @@ class MainActivity : ComponentActivity() {
 fun Main() {
     CroustiMenuTheme {
         val crousRepository = viewModel<MainViewmodel>()
-        var selectedScreen by remember { mutableStateOf(Screen.CARTE) }
+        var selectedScreen by remember { mutableStateOf(Screen.LISTE) }
 
         Scaffold(
             topBar = {
@@ -99,7 +99,7 @@ fun Main() {
 
                 ) {
                     Row(horizontalArrangement = Arrangement.Center) {
-                        IconButton(onClick = { selectedScreen = Screen.CARTE }) {
+                        IconButton(onClick = { selectedScreen = Screen.LISTE }) {
                             Icon(
                                 imageVector = androidx.compose.material.icons.Icons.Filled.Home,
                                 contentDescription = "Home",
@@ -127,6 +127,19 @@ fun Main() {
                         horizontalArrangement = Arrangement.Center
                     ) {
                         Button(
+                            onClick = { selectedScreen = Screen.LISTE },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor =
+                                    if (selectedScreen == Screen.LISTE) Color(0xFFDC6455)
+                                    else Color(0xFF365d76)
+                            ),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text("Liste", color = Color.White)
+                        }
+
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Button(
                             onClick = { selectedScreen = Screen.CARTE },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor =
@@ -138,19 +151,6 @@ fun Main() {
                             Text("Carte", color = Color.White)
                         }
 
-                        Spacer(modifier = Modifier.width(8.dp))
-
-                        Button(
-                            onClick = { selectedScreen = Screen.LISTE },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor =
-                                    if (selectedScreen == Screen.LISTE) Color(0xFFDC6455)
-                                    else Color(0xFF365d76)
-                            ),
-                            shape = RoundedCornerShape(8.dp)
-                        ) {
-                            Text("Liste", color = Color.White)
-                        }
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -163,8 +163,8 @@ fun Main() {
                         .weight(1f)
                 ) {
                     when (selectedScreen) {
-                        Screen.CARTE -> CarteScreen()
                         Screen.LISTE -> ListeScreen(crousRepository)
+                        Screen.CARTE -> CarteScreen()
                         Screen.FAVORIS -> FavorisScreen(crousRepository)
                     }
                 }
