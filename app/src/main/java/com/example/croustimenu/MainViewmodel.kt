@@ -36,6 +36,9 @@ class MainViewmodel(application: Application) : AndroidViewModel(application) {
     private val _crousFavoris = MutableStateFlow<List<Crous>>(emptyList())
     val crousFavoris = _crousFavoris.asStateFlow()
 
+    // Loader favoris
+    val isFavorisLoading = MutableStateFlow(false)
+
     // --- Menu du jour ---
 
     private val _menuDuJour = MutableStateFlow<MenuDuJour?>(null)
@@ -46,6 +49,8 @@ class MainViewmodel(application: Application) : AndroidViewModel(application) {
     init {
         viewModelScope.launch {
             try {
+                isFavorisLoading.value = true
+
                 // Charge les favoris depuis Room
                 val favoris = crousRepository.getAll()
                 _crousFavoris.value = favoris
@@ -57,6 +62,8 @@ class MainViewmodel(application: Application) : AndroidViewModel(application) {
                 _regionsAPI.value = regionsResponse.regions
             } catch (e: Exception) {
                 Log.e("MainViewmodel", "Erreur init", e)
+            } finally {
+                isFavorisLoading.value = false
             }
         }
     }
@@ -113,13 +120,30 @@ class MainViewmodel(application: Application) : AndroidViewModel(application) {
         _crousFavorisAPI.value = _crousAPI.value.filter { it.estFavori }
     }
 
-    fun reloadFavorisFromDb() {
+    // Nouvelle fonction pour l’écran Favoris
+    fun loadFavorisScreenData() {
         viewModelScope.launch {
-            val favoris = crousRepository.getAll()
-            _crousFavoris.value = favoris
-            favorisIds.clear()
-            favorisIds.addAll(favoris.map { it.id })
-            recalcFavorisOnRestaurants()
+            isFavorisLoading.value = true
+            try {
+                // 1) Récupérer tous les restos (API)
+                val response = apiRepository.getAll()
+                val dataList = response.restaurants
+                _crousAPI.value = dataList.map { restaurant ->
+                    restaurant.copy(estFavori = favorisIds.contains(restaurant.code))
+                }
+                _crousFavorisAPI.value = _crousAPI.value.filter { it.estFavori }
+
+                // 2) Synchroniser avec la base Room
+                val favoris = crousRepository.getAll()
+                _crousFavoris.value = favoris
+                favorisIds.clear()
+                favorisIds.addAll(favoris.map { it.id })
+                recalcFavorisOnRestaurants()
+            } catch (e: Exception) {
+                Log.e("MainViewmodel", "Erreur loadFavorisScreenData", e)
+            } finally {
+                isFavorisLoading.value = false
+            }
         }
     }
 

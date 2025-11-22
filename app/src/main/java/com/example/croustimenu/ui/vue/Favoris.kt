@@ -16,6 +16,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -38,11 +39,11 @@ fun FavorisScreen(
     onRestaurantClick: (Restaurant) -> Unit
 ) {
     val restaurants by viewModel.crousAPI.collectAsState()
-    val favoris by viewModel.crousFavorisAPI.collectAsState()
+    val favoris    by viewModel.crousFavorisAPI.collectAsState()
+    val isLoading  by viewModel.isFavorisLoading.collectAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.getAllCrousByAPI()
-        viewModel.reloadFavorisFromDb()
+        viewModel.loadFavorisScreenData()
     }
 
     Box(
@@ -51,23 +52,31 @@ fun FavorisScreen(
             .padding(16.dp),
         contentAlignment = Alignment.TopCenter
     ) {
-        if (favoris.isEmpty()) {
-            Text(
-                text = "Vous n'avez pas encore de restaurant en favori.",
-                style = MaterialTheme.typography.bodyMedium
-            )
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(favoris) { restaurant ->
-                    FavoriCard(
-                        restaurant = restaurant,
-                        onToggleFavorite = {
-                            viewModel.toggleFavori(restaurant.code)
-                        },
-                        onRestaurantClick = { onRestaurantClick(restaurant) }
-                    )
+        when {
+            isLoading -> {
+                CircularProgressIndicator()
+            }
+
+            favoris.isEmpty() -> {
+                Text(
+                    text = "Vous n'avez pas encore de restaurant en favori.",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+
+            else -> {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(favoris) { restaurant ->
+                        FavoriCard(
+                            restaurant = restaurant,
+                            onToggleFavorite = {
+                                viewModel.toggleFavori(restaurant.code)
+                            },
+                            onRestaurantClick = { onRestaurantClick(restaurant) }
+                        )
+                    }
                 }
             }
         }
