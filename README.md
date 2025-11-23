@@ -2,32 +2,55 @@
 
 ## **Présentation**
 ***CroustiMenu*** est une application qui permet de consulter facilement le menu du midi de votre Crous, en France métropolitaine et outre-mer.  
-Vous pouvez enregistrer votre Crous préféré pour y accéder en un clic.
+Vous pouvez rechercher un Crous en fonction d'une région, afficher l’ensemble des Crous sur une carte ou même enregistrer vos Crous favoris pour y accéder en un clic.
 
 ## Fonctionnalités principales
-- Recherche de Crous sur une carte ou en liste
+- Barre de recherche pour filtrer les Crous par nom dans une région
+- Carte interactive avec tous les restaurants CROUS
 - Consultation du menu du jour pour chaque Crous
-- Ajout de Crous en favoris
+- Ajout / supression de Crous en favoris
 - Accès rapide aux favoris
 
 ## **Navigation**
 
 
-### Page d'Accueil :
-Lors du lancement de l'application, vous arrivez sur une carte de France affichant tous les Crous disponibles. Vous pouvez en sélectionner un ou consulter la liste via le bouton *“Liste”*.
+### Page d'Accueil - Liste des régions : 
+Lors du lancement de l'application, vous arrivez la liste des régions Crous.
+En sélectionnant une région, vous accédez à la liste des Crous de cette région.
 
+### Liste des Crous :
+Pour chaque région, les Crous sont affichés sous forme de cartes. Une barre de recherche permet de filtrer les Crous par nom.
+Chaque Crous affiche :
+- le nom du crous,
+- son adresse,
+- un bouton "voir le menu" pour accéder au détail,
+- un bouton "coeur" permettant d'ajouter ou de retirer le crous des favoris.
+
+### Détail d'un Crous :
+L'écran affiche :
+- le nom et les coordonnées du crous sélectionné (adresse, téléphone, mail),
+- le menu du jour. Dans certains cas, le menu du jour n'est pas encore renseigné, une indication "Aucun menu disponible pour aujourd'hui" est indiqué,
+- un coeur, permettant de gérer le statut favori,
+- une flèche retour qui ramène à l'écran d'avant.
+
+### Carte :
+Depuis la page d'accueil, un onglet "Carte" permet d'afficher :
+- une carte du monde avec des pointeurs sur tous les Crous
+Un clic sur un marqueur permet d'ouvrir directement la fiche détaillée du Crous.
 
 ### Favoris :
-Ajoutez votre Crous préféré en cliquant sur le cœur, puis retrouvez-le facilement dans l’onglet *“Mes favoris”*.
+L’icône cœur en haut à droite de la barre d’app permet d’accéder à l’écran « Favoris » :
+- liste des restaurants marqués en favori.
+Les favoris sont stockés localement pour être conservés entre les lancements de l’application.
 
-
-### Menu :
-Chaque Crous affiche uniquement le menu du jour.
 
 
 ### L'API choisie :
 - https://www.data.gouv.fr/dataservices/api-croustillant/ : Fournit la liste des Crous et leurs menus du jour.
 
+
+## Attention !
+Pour une meilleure expérience utilisateur, veuillez mettre votre téléphone en mode clair et non en mode sombre !
 
 ## 🤓 Projet réalisé par
 Amandine Laymajoux FIA4
