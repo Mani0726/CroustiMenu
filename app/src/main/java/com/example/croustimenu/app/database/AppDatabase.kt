@@ -7,9 +7,12 @@ import androidx.room.RoomDatabase
 import com.example.croustimenu.app.models.dao.CrousDAO
 import com.example.croustimenu.app.models.entities.Crous
 
+//Base de données locale Room pour stocker les restaurants CROUS favoris.
+//Fournit accès DAO
+
 @Database(
     entities = [Crous::class],
-    version = 4,
+    version = 4, //changé car sinon l'appli plantait automatiquement dès son ouverture
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -27,7 +30,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "crousti_menu_db"
                 )
-                    .fallbackToDestructiveMigration()  // en dev : auto wipe si changement schema
+                    .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
                 instance

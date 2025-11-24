@@ -129,12 +129,12 @@ fun RestaurantDetailScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             contentPadding = PaddingValues(bottom = 24.dp)
         ) {
-            // --- Bloc détail restaurant ---
+            // Bloc détail restaurant
             item {
                 DetailRestaurantCard(restaurant)
             }
 
-            // --- Bloc menu du jour ---
+            //Bloc menu du jour
             when {
                 isLoading -> {
                     item {

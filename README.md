@@ -13,13 +13,12 @@ Vous pouvez rechercher un Crous en fonction d'une région, afficher l’ensemble
 
 ## **Navigation**
 
-
 ### Page d'Accueil - Liste des régions : 
-Lors du lancement de l'application, vous arrivez la liste des régions Crous.
+Lors du lancement de l'application, vous arrivez sur la liste des régions des Crous.
 En sélectionnant une région, vous accédez à la liste des Crous de cette région.
 
 ### Liste des Crous :
-Pour chaque région, les Crous sont affichés sous forme de cartes. Une barre de recherche permet de filtrer les Crous par nom.
+Pour chaque région, les Crous sont affichés sous forme de cartes. Une barre de recherche permet de rechercher les Crous par nom.
 Chaque Crous affiche :
 - le nom du crous,
 - son adresse,
@@ -29,7 +28,7 @@ Chaque Crous affiche :
 ### Détail d'un Crous :
 L'écran affiche :
 - le nom et les coordonnées du crous sélectionné (adresse, téléphone, mail),
-- le menu du jour. Dans certains cas, le menu du jour n'est pas encore renseigné, une indication "Aucun menu disponible pour aujourd'hui" est indiqué,
+- le menu du jour. Dans certains cas, le menu du jour n'est pas encore renseigné, une indication "Aucun menu disponible pour aujourd'hui" est indiqué. En règle générale, le menu est disponible en semaine aux alentours des 12h30.
 - un coeur, permettant de gérer le statut favori,
 - une flèche retour qui ramène à l'écran d'avant.
 
@@ -39,10 +38,10 @@ Depuis la page d'accueil, un onglet "Carte" permet d'afficher :
 Un clic sur un marqueur permet d'ouvrir directement la fiche détaillée du Crous.
 
 ### Favoris :
-L’icône cœur en haut à droite de la barre d’app permet d’accéder à l’écran « Favoris » :
+L’icône cœur en haut à droite de la topBar permet d’accéder à l’écran « Favoris » :
 - liste des restaurants marqués en favori.
 Les favoris sont stockés localement pour être conservés entre les lancements de l’application.
-
+Vous pouvez revenir au menu de la liste des régions ou de la carte en cliquant simplement sur le logo "CroustiMenu", situé en haut de l'écran.
 
 
 ### L'API choisie :

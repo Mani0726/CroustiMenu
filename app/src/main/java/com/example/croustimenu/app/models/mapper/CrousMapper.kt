@@ -23,10 +23,11 @@ import com.example.croustimenu.app.models.entities.Repas
 import com.example.croustimenu.app.models.entities.Restaurant
 import com.example.croustimenu.app.models.entities.TypeRestaurant
 
+
+// Convertit toutes les réponses JSON (DTO)
+
 class CrousMapper {
-    /*
-    * REGION
-    */
+    //région
     fun RegionDto.toDomain(): Region =
         Region(
             code = this.code,
@@ -38,9 +39,7 @@ class CrousMapper {
             regions = this.liste_regions_dto.map { it.toDomain() }
         )
 
-    /*
-     * OUVERTURE / INFOJOUR
-     */
+    //infos du crous
     fun OuvertureDto.toDomain(): Ouverture =
         Ouverture(
             matin = this.matin,
@@ -54,9 +53,7 @@ class CrousMapper {
             ouverture = this.ouverture_dto.toDomain()
         )
 
-    /*
-     * PLAT / CATEGORIE / REPAS / MENU
-     */
+    //plats/menu
     fun PlatDto.toDomain(): Plat =
         Plat(
             code = this.code,
@@ -86,18 +83,13 @@ class CrousMapper {
     )
 
 
-    /*
-     * TYPE RESTAURANT
-     */
     fun TypeRestaurantDto.toDomain(): TypeRestaurant =
         TypeRestaurant(
             code = this.code,
             libelle = this.libelle
         )
 
-    /*
-     * RESTAURANT
-     */
+    //crous
     fun RestaurantDto.toDomain(estFavori: Boolean = false): Restaurant =
         Restaurant(
             code = this.code,
@@ -118,7 +110,6 @@ class CrousMapper {
             acces = this.acces,
             ouvert = this.ouvert,
             actif = this.actif,
-            // ... autres champs ...
             estFavori = estFavori
         )
 

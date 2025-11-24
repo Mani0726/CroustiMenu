@@ -20,6 +20,6 @@ data class Restaurant(
     val ouvert: Boolean,
     val actif: Boolean?,
 
-    // ... autres champs ...
-    val estFavori: Boolean = false // nouveau champ avec valeur par défaut
+    // va permettre la mise en favori avec un nouvel état, par défaut = false car pas dans les favoris
+    val estFavori: Boolean = false
 )

@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 data class RestaurantDto(
     val code: Int,
     val region: RegionDto,
-    // JSON: "type": { code, libelle }
+    // JSON: "type"
     @SerialName("type")
     val type_restaurant_dto: TypeRestaurantDto,
 
@@ -18,7 +18,7 @@ data class RestaurantDto(
     val longitude: Double,
     val horaires: List<String>?,
 
-    // JSON: "jours_ouvert": [ { jour, ouverture { matin, midi, soir } }, ... ]
+    // JSON: "jours_ouvert"
     @SerialName("jours_ouvert")
     val liste_jours_ouvert_dto: List<InfoJourDto>,
 
@@ -28,11 +28,11 @@ data class RestaurantDto(
     val ispmr: Boolean?,
     val zone: String,
 
-    // JSON: "paiement": [...]
+    // JSON: "paiement" - pas utile
     @SerialName("paiement")
     val paiements: List<String>?,
 
-    // JSON: "acces": [ ... ]
+    // JSON: "acces" idem
     val acces: List<String>?,
 
     val ouvert: Boolean = false,

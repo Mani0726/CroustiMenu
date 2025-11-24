@@ -3,6 +3,7 @@ package com.example.croustimenu.app.models.dto
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+//sert au décodage JSon (Date Transfer Object)
 @Serializable
 data class CategoriePlatDto(
     val code: Int,

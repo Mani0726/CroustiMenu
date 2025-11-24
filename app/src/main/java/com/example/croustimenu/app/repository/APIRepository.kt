@@ -11,6 +11,9 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+// Centralise appels API Crous et convertit réponses JSON
+
+
 class APIRepository(
     private val api: CrousService = ServiceFactory.crousService,
     private val mapper: CrousMapper = CrousMapper()
@@ -34,15 +37,9 @@ class APIRepository(
             api.getAllRestaurants().toDomain()
         }
 
-    /**
-     * Récupère le menu du jour d'un restaurant.
-     *
-     * @param restaurantCode code du restaurant
-     * @param dateApi date au format API (DD-MM-YYYY).
-     *        Si null, on utilise la date du jour.
-     *
-     * Retourne null si aucun menu n'est disponible pour cette date.
-     */
+    //récupère menu du jour d'un crous
+    //si aucun menu est dispoinlbe à cette date, retourne null
+
     suspend fun getMenuDuJour(
         restaurantCode: Int,
         dateApi: String? = null
@@ -60,7 +57,7 @@ class APIRepository(
             // Vérifier si on a des menus dans la réponse
             val menuDto = response.menu?: return null
 
-            // Utiliser le mapper comme receiver pour accéder à MenuDto.toDomain()
+            // Utiliser le mapper pour accéder à MenuDto.toDomain()
             with(mapper) { menuDto.toDomain() }
         } catch (e: Exception) {
             Log.e("APIRepository", "Erreur lors de la récupération du menu", e)

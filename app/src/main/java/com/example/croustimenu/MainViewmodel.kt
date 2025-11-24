@@ -21,7 +21,6 @@ class MainViewmodel(application: Application) : AndroidViewModel(application) {
 
     private val favorisIds = mutableSetOf<Int>()
 
-    // --- State API ---
 
     private val _regionsAPI = MutableStateFlow<List<Region>>(emptyList())
     val regionsAPI = _regionsAPI.asStateFlow()
@@ -39,7 +38,7 @@ class MainViewmodel(application: Application) : AndroidViewModel(application) {
     // Loader favoris
     val isFavorisLoading = MutableStateFlow(false)
 
-    // --- Menu du jour ---
+    // Menu du jour
 
     private val _menuDuJour = MutableStateFlow<MenuDuJour?>(null)
     val menuDuJour = _menuDuJour.asStateFlow()
@@ -73,7 +72,7 @@ class MainViewmodel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    // --- Régions & restaurants ---
+    // Régions et crous
 
     fun getAllRegions() {
         viewModelScope.launch {
@@ -116,7 +115,7 @@ class MainViewmodel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    // --- Favoris / Room ---
+    //Favoris / Room
 
     private fun recalcFavorisOnRestaurants() {
         _crousAPI.value = _crousAPI.value.map { r ->
@@ -189,7 +188,7 @@ class MainViewmodel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    // --- Menu du jour ---
+    //Menu du jour
 
     fun loadMenuDuJour(codeRestaurant: Int) {
         viewModelScope.launch {
